@@ -1,0 +1,101 @@
+---
+title: "Analysis of Used Cars Dataset"
+author: "Farooq A. Khan"
+date: "30/07/2020"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+## The dataset
+There are 13 cars datasets that have been defined below: 
+
+```{r}
+companies<-c('audi', 'bmw', 'cclass', 'focus', 'ford', 'hyundi', 'merc', 'skoda', 'toyota', 'unclean cclass', 'unclean focus', 'vauxhall', 'vw')
+```
+
+
+## Analyze Toyota
+```{r}
+toyota <- read.csv('../data/toyota.csv')
+```
+
+Here is the dataset: 
+```{r}
+library(knitr)
+kable(toyota[1:5,], caption="First Five Rows of Toyota dataset")
+```
+
+Here are some unique models of Toyota cars: 
+```{r}
+kable(unique(toyota[,'model']), caption="Unique models of Toyota Cars")
+```
+
+Here is also unique fuel types. 
+```{r}
+kable(unique(toyota[,'fuelType']), caption="Unique fuel types of Toyota Cars")
+```
+
+
+### Graphical Analysis
+Below we graph the mileage to price scatter plot and group the cars based on Fuel Type. As you can see the cheapest cars are those with "Petrol" as a fuel Type. 
+```{r}
+library(ggplot2)
+ggplot(toyota, aes(mileage, price, colour=fuelType)) + 
+  geom_point()
+```
+We can also look at which cars are expensive based on their model as well. Below is a graph that shows that C-HR are cheapest models while the Proace Verso are more expensive on average. 
+```{r}
+ggplot(toyota, aes(mileage, price, colour=model)) + geom_point()
+```
+
+Below you can see that there are alot of toyota cars that run on petrol. 
+```{r}
+ggplot(toyota) + geom_bar(aes(x=fuelType))
+```
+
+The two most common types of cars are Aygo and Yaris.
+```{r}
+ggplot(toyota) + geom_bar(aes(x=model))
+```
+
+Lets compare engine size to price. Small engine sizes yield cheaper prices with higher mileage. 
+```{r}
+ggplot(toyota, aes(mileage, price, colour=engineSize)) + geom_point()
+```
+
+```{r}
+ggplot(toyota, aes(tax, price, colour=fuelType)) + geom_point()
+```
+Tax appears to be a finite set of values and not a part of the real plane. Also the hypothese is that cars that are not eco friendly will be taxed more. 
+
+```{r}
+ggplot(toyota, aes(year, price, colour=fuelType)) + geom_point()
+```
+
+## Linear COrrelation
+```{r}
+cor(toyota$mileage, toyota$price)
+```
+There is negative weak correlation between mileage and price. 
+```{r}
+cor(toyota$tax, toyota$price)
+```
+There is also weak correlation between tax and price. 
+
+
+## Forming Linear Models
+
+```{r}
+model <- lm(formula=price ~ year + mileage + tax + mpg + engineSize, data=toyota)
+summary(model)
+```
+The R-suqred and adjusted R-squared value is 0.764 showing positive moderate correlation.
+
+Lets try it wihtout tax this time and see the R-squared value. 
+```{r}
+model2<- lm(formula=price ~ year + mileage + mpg + engineSize, data=toyota)
+summary(model2)
+```
+Computationally better but mathematically the same. 
