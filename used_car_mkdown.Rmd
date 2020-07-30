@@ -99,3 +99,90 @@ model2<- lm(formula=price ~ year + mileage + mpg + engineSize, data=toyota)
 summary(model2)
 ```
 Computationally better but mathematically the same. 
+
+
+## Converting finite sets to numbers
+```{r}
+toyota$fuelTypeNum <- ifelse(toyota$fuelType=='Petrol', 1, ifelse(toyota$fuelType=='Other', 2, 
+ifelse(toyota$fuelType=='Hybrid', 3, 4)
+)
+)
+```
+
+This is model 3 with fuelTypeNum column in it. 
+```{r}
+model3<- lm(formula=price ~ year + mileage + fuelTypeNum + mpg + engineSize, data=toyota)
+summary(model3)
+```
+The R-squared value has improved a bit as well. 
+
+### Numeric model
+```{r}
+toyota$modelNum <- ifelse(
+  toyota$model==' GT86', 1, ifelse(
+    toyota$model==' Corolla', 2, ifelse(
+      toyota$model==' RAV4', 3, ifelse(
+        toyota$model==' Yaris', 4, ifelse(
+          toyota$model==' Auris', 5, ifelse(
+            toyota$model==' Aygo', 6, ifelse(
+              toyota$model==' C-HR', 7, ifelse(
+                toyota$model==' Prius', 8, ifelse(
+                  toyota$model==' Avensis', 9, ifelse(
+                    toyota$model==' Verso', 10, ifelse(
+                      toyota$model==' Hilux', 11, ifelse(
+                        toyota$model==' PROACE VERSO', 12, ifelse(
+                          toyota$model==' Land Cruiser', 13, ifelse(
+                            toyota$model==' Supra', 14, ifelse(
+                              toyota$model==' Camry', 15, ifelse(
+                                toyota$model==' Verso-S', 16, ifelse(
+                                  toyota$model==' IQ', 17, 18 
+                                  )
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+)
+
+```
+
+This is model 4 with modelNum column in it. 
+```{r}
+model4<- lm(formula=price ~ year + mileage + fuelTypeNum + modelNum + mpg + engineSize, data=toyota)
+summary(model4)
+```
+We see more improvement with it now having an R squared value of .78.
+
+### Transmission
+
+```{r}
+toyota$transNum <- ifelse(
+  toyota$transmission=='Manual',1, ifelse(
+    toyota$transmission=='Automatic',2, ifelse(
+      toyota$transmission=='Semi-Auto',3, 4
+    )
+  )
+)
+```
+
+```{r}
+model5<- lm(formula=price ~ year + mileage + fuelTypeNum + modelNum + transNum + mpg + engineSize, data=toyota)
+summary(model5)
+```
+With model 5 we have r-suqared value of 0.8. 
+
+```{r}
+model6<- lm(formula=price ~ year + mileage+ modelNum + transNum + engineSize, data=toyota)
+summary(model6)
+```
+
