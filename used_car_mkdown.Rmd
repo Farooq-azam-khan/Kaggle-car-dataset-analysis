@@ -186,3 +186,43 @@ model6<- lm(formula=price ~ year + mileage+ modelNum + transNum + engineSize, da
 summary(model6)
 ```
 
+## Confidence Interval
+```{r}
+confint(model6, level=0.95) # CIs for model parameters
+```
+
+## Anova Table
+
+```{r}
+anova(model6) # anova table
+```
+
+```{r}
+kable(vcov(model6))# covariance matrix for model parameters
+```
+
+## K-fold cross-validation
+https://www.statmethods.net/stats/regression.html.
+```{r}
+library(DAAG)
+
+X <- as.matrix(toyota[c("year","mileage","fuelTypeNum", "mpg", "engineSize", "modelNum")])
+# vector of predicted values
+y <- as.matrix(toyota[c("price")])
+#cv.lm(df=X, fit, m=3) # 3 fold cross-validation
+```
+
+### Bootstraping
+```{r}
+library(bootstrap)
+
+fit <- model6
+# define functions
+theta.fit <- function(x,y){lsfit(x,y)}
+theta.predict <- function(fit,x){cbind(1,x)%*%fit$coef}
+
+results <- crossval(X,y,theta.fit,theta.predict,ngroup=10)
+cor(y, fit$fitted.values)**2 # raw R2
+cor(y,results$cv.fit)**2 # cross-validated R2
+```
+

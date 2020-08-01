@@ -1953,6 +1953,130 @@ summary(model6)</code></pre>
 ## F-statistic:  5393 on 5 and 6732 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
+<div id="confidence-interval" class="section level2">
+<h2>Confidence Interval</h2>
+<pre class="r"><code>confint(model6, level=0.95) # CIs for model parameters</code></pre>
+<pre><code>##                     2.5 %        97.5 %
+## (Intercept) -1.844766e+06 -1.661930e+06
+## year         8.213080e+02  9.119052e+02
+## mileage     -7.637956e-02 -6.571651e-02
+## modelNum     3.482421e+02  4.138659e+02
+## transNum     1.702534e+03  1.970553e+03
+## engineSize   1.005234e+04  1.041063e+04</code></pre>
+</div>
+<div id="anova-table" class="section level2">
+<h2>Anova Table</h2>
+<pre class="r"><code>anova(model6) # anova table</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: price
+##              Df     Sum Sq    Mean Sq    F value Pr(&gt;F)    
+## year          1 4.8063e+10 4.8063e+10  5971.3787 &lt;2e-16 ***
+## mileage       1 4.0851e+07 4.0851e+07     5.0753 0.0243 *  
+## modelNum      1 6.1894e+09 6.1894e+09   768.9717 &lt;2e-16 ***
+## transNum      1 6.1855e+10 6.1855e+10  7684.8780 &lt;2e-16 ***
+## engineSize    1 1.0089e+11 1.0089e+11 12534.9244 &lt;2e-16 ***
+## Residuals  6732 5.4185e+10 8.0489e+06                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>kable(vcov(model6))# covariance matrix for model parameters</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">(Intercept)</th>
+<th align="right">year</th>
+<th align="right">mileage</th>
+<th align="right">modelNum</th>
+<th align="right">transNum</th>
+<th align="right">engineSize</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td align="right">2.174767e+09</td>
+<td align="right">-1.077612e+06</td>
+<td align="right">-93.0303341</td>
+<td align="right">8326.7565563</td>
+<td align="right">-2.061817e+05</td>
+<td align="right">6.065031e+05</td>
+</tr>
+<tr class="even">
+<td>year</td>
+<td align="right">-1.077612e+06</td>
+<td align="right">5.339703e+02</td>
+<td align="right">0.0460798</td>
+<td align="right">-4.7910466</td>
+<td align="right">1.009348e+02</td>
+<td align="right">-3.041575e+02</td>
+</tr>
+<tr class="odd">
+<td>mileage</td>
+<td align="right">-9.303033e+01</td>
+<td align="right">4.607980e-02</td>
+<td align="right">0.0000074</td>
+<td align="right">-0.0022509</td>
+<td align="right">2.102020e-02</td>
+<td align="right">-6.055390e-02</td>
+</tr>
+<tr class="even">
+<td>modelNum</td>
+<td align="right">8.326757e+03</td>
+<td align="right">-4.791047e+00</td>
+<td align="right">-0.0022509</td>
+<td align="right">280.1627608</td>
+<td align="right">-1.007127e+02</td>
+<td align="right">3.723187e+01</td>
+</tr>
+<tr class="odd">
+<td>transNum</td>
+<td align="right">-2.061817e+05</td>
+<td align="right">1.009348e+02</td>
+<td align="right">0.0210202</td>
+<td align="right">-100.7127447</td>
+<td align="right">4.673249e+03</td>
+<td align="right">-2.852713e+03</td>
+</tr>
+<tr class="even">
+<td>engineSize</td>
+<td align="right">6.065031e+05</td>
+<td align="right">-3.041575e+02</td>
+<td align="right">-0.0605539</td>
+<td align="right">37.2318682</td>
+<td align="right">-2.852713e+03</td>
+<td align="right">8.351337e+03</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="k-fold-cross-validation" class="section level2">
+<h2>K-fold cross-validation</h2>
+<p><a href="https://www.statmethods.net/stats/regression.html" class="uri">https://www.statmethods.net/stats/regression.html</a>.</p>
+<pre class="r"><code>library(DAAG)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre class="r"><code>X &lt;- as.matrix(toyota[c(&quot;year&quot;,&quot;mileage&quot;,&quot;fuelTypeNum&quot;, &quot;mpg&quot;, &quot;engineSize&quot;, &quot;modelNum&quot;)])
+# vector of predicted values
+y &lt;- as.matrix(toyota[c(&quot;price&quot;)])
+#cv.lm(df=X, fit, m=3) # 3 fold cross-validation</code></pre>
+<div id="bootstraping" class="section level3">
+<h3>Bootstraping</h3>
+<pre class="r"><code>library(bootstrap)
+
+fit &lt;- model6
+# define functions
+theta.fit &lt;- function(x,y){lsfit(x,y)}
+theta.predict &lt;- function(fit,x){cbind(1,x)%*%fit$coef}
+
+results &lt;- crossval(X,y,theta.fit,theta.predict,ngroup=10)
+cor(y, fit$fitted.values)**2 # raw R2</code></pre>
+<pre><code>##           [,1]
+## price 0.800221</code></pre>
+<pre class="r"><code>cor(y,results$cv.fit)**2 # cross-validated R2</code></pre>
+<pre><code>##           [,1]
+## price 0.781844</code></pre>
+</div>
+</div>
 
 
 
